@@ -21,7 +21,46 @@ services:
       - /srv/tautulli:/config
     ports:
       - 8181:8181
+    restart: unless-stopped  
+    
+  gluetun:
+    image: qmcgaw/gluetun
+    container_name: gluetun
+    cap_add:
+      - NET_ADMIN
+    network_mode: bridge
+    ports:
+      - 8000:8000/tcp # Built-in HTTP control server
+      - 9091:9091
+    # command:
+    volumes:
+      - /srv/gluetun:/gluetun
+    secrets:
+      - openvpn_user
+      - openvpn_password
+    environment:
+      # More variables are available, see the Wiki table
+      - VPNSP=private internet access
+      - VPN_TYPE=openvpn
+      # Timezone for accurate logs times
+      - TZ=US/Chicago
+    restart: always
+
+  transmission:
+    image: ghcr.io/linuxserver/transmission
+    container_name: transmission
+    network_mode: "service:gluetun"
+    env_file: .env
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ= US/Chicago  
+      - TRANSMISSION_WEB_HOME=/transmission-web-control/ #optional
+    volumes:
+      - /srv/transmission:/config
+      - nfsmedia:/media
     restart: unless-stopped
+
 
 
 volumes:
@@ -31,3 +70,9 @@ volumes:
       type: nfs
       o: addr=192.168.1.3,nfsvers=4
       device: ":/volume1/Media/"
+
+secrets:
+  openvpn_user:
+    file: ./openvpn_user
+  openvpn_password:
+    file: ./openvpn_password
