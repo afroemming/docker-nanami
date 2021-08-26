@@ -11,6 +11,17 @@ services:
       - /srv/plex:/config
       - nfsmedia:/media
     restart: unless-stopped
+  tautulli:
+    image: ghcr.io/linuxserver/tautulli
+    container_name: tautulli
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - /srv/tautulli:/config
+    ports:
+      - 8181:8181
+    restart: unless-stopped
 
 
 volumes:
