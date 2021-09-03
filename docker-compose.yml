@@ -31,7 +31,7 @@ services:
     network_mode: bridge
     ports:
       - 8000:8000/tcp # Built-in HTTP control server
-      - 9091:9091
+      - 8112:9090
     # command:
     volumes:
       - /srv/gluetun:/gluetun
@@ -46,22 +46,18 @@ services:
       - TZ=US/Chicago
     restart: always
 
-  transmission:
-    image: ghcr.io/linuxserver/transmission
-    container_name: transmission
+  deluge:
+    image: ghcr.io/linuxserver/deluge
+    container_name: deluge
     network_mode: "service:gluetun"
-    env_file: .env
     environment:
       - PUID=1000
       - PGID=1000
-      - TZ= US/Chicago  
-      - TRANSMISSION_WEB_HOME=/transmission-web-control/ #optional
+      - TZ=US/Chicago
     volumes:
-      - /srv/transmission:/config
+      - /srv/deluge:/config
       - nfsmedia:/media
     restart: unless-stopped
-
-
 
 volumes:
   nfsmedia:
